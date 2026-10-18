@@ -1,0 +1,45 @@
+# Виртуальные окружения
+.venv/
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Данные и большие файлы
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Модели и результаты
+models/
+*.pkl
+*.joblib
+*.h5
+
+# IDE и система
+.vscode/
+.idea/
+.DS_Store
+
+# Переменные окружения
+.env
+.env.*
+!.env.example
+
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
