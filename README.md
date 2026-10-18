@@ -1,122 +1,161 @@
 # conductivity-fluctuation-analysis
 Machine learning analysis of conductivity fluctuations in thin metal films: Python, time-series processing, K-Means, KNN, and neural networks.
-# Conductivity Fluctuation Analysis of Thin Metal Films
+# Conductivity Fluctuation Analysis in Thin Metal Films
 
-Analysis of experimental conductivity fluctuation data for thin iron, bismuth, 
-and chromium films using Python and machine learning methods.
+Machine learning project based on my Bachelor’s thesis in Applied Mathematics and Physics.
 
-## Project Overview
+The project analyzes low-frequency conductivity fluctuations in bismuth, iron, and chromium thin films. It combines experimental time-series processing, spectral feature extraction, clustering, and classification.
 
-This project investigates whether characteristics of conductivity fluctuations 
-can be used to identify patterns associated with the chemical composition of 
-thin metal films.
+## Project Goal
 
-The project includes data preprocessing, exploratory data analysis, feature 
-extraction from time series, visualization, and the application of machine 
-learning models.
+To determine whether conductivity fluctuation patterns can be used to distinguish thin metal films of different compositions.
 
-## Objectives
+## Key Result
 
-- Process experimental conductivity data for Fe, Bi, and Cr thin films.
-- Develop a Python-based pipeline for preliminary time-series processing.
-- Calculate statistical characteristics of conductivity fluctuations.
-- Perform exploratory data analysis and identify outliers and patterns.
-- Apply machine learning methods to assess relationships between signal 
-  characteristics and film composition.
-- Compare ML approaches and evaluate their suitability for the task.
+The thesis pipeline achieved **89.41% recognition accuracy** in distinguishing conductivity fluctuation patterns across films of different compositions.
+
+Methods used in the thesis:
+
+- K-Means clustering
+- K-Nearest Neighbors (KNN)
+- Fully connected neural network
 
 ## Data
 
-- **Source:** Experimental data from the works of A. A. Shulginov and 
-  N. S. Zabeyvorota.
-- **Objects:** Thin metal films of iron (Fe), bismuth (Bi), and chromium (Cr).
-- **Data type:** Time series of conductivity measurements.
-- **Note:** The raw experimental data are not publicly available in this 
-  repository.
+The project uses experimental conductivity fluctuation measurements from thin metal films.
 
-## Methods and Tools
+The original experimental dataset cannot be shared publicly. The repository expects CSV or binary input files with time-series conductivity measurements.
 
-- **Programming language:** Python
-- **Data processing:** pandas, NumPy
-- **Visualization:** Matplotlib, Seaborn
-- **Machine learning:** scikit-learn
-- **Development environment:** Jupyter Notebook
-- **Version control:** Git, GitHub
-
-## Project Structure
+Expected input structure:
 
 ```text
-conductivity-films-analysis/
+data/
+├── q00/          # raw binary acquisition files
+│   ├── BFC02C01.Q00
+│   ├── BI202C01.Q00
+│   └── ...
+└── q03/          # processed fixed-length samples
+    ├── BFC02C01.Q03
+    ├── BI202C01.Q03
+    └── ...
+```
+
+## Methods
+
+### 1. Signal processing
+
+- Reading binary experimental data
+- Splitting long signals into overlapping samples
+- Removing linear trends
+- Applying a Blackman window
+- Computing FFT-based power spectra
+- Extracting 1/f noise spectrum parameters
+- Calculating average spectral energy
+
+### 2. Machine learning
+
+Two modeling approaches are implemented:
+
+| Approach | Input | Features | Models |
+|---|---|---|---|
+| Raw sample classification | Fixed-length time-series samples | Raw conductivity fluctuation signal | KNN |
+| Feature-based analysis | Processed time-series samples | Gamma parameter, spectral energy | K-Means, KNN, neural network |
+
+## Repository Structure
+
+```text
+.
 ├── README.md
 ├── requirements.txt
+├── LICENSE
 ├── .gitignore
 ├── data/
-│   ├── raw/                  # Original experimental data
-│   └── processed/            # Cleaned and transformed data
+│   └── README.md
 ├── notebooks/
-│   ├── 01_eda.ipynb          # Exploratory data analysis
-│   ├── 02_preprocessing.ipynb
-│   └── 03_ml_models.ipynb
+│   ├── 01_signal_processing.ipynb
+│   └── 02_machine_learning.ipynb
 ├── src/
-│   ├── preprocessing.py      # Data preprocessing functions
-│   ├── features.py           # Feature extraction
-│   └── models.py             # Model training and evaluation
-├── reports/
-│   └── figures/              # Generated plots and visualizations
-└── LICENSE
+│   ├── signal_processing.py
+│   ├── build_dataset.py
+│   └── train_models.py
+├── results/
+│   ├── figures/
+│   └── metrics/
+└── docs/
+    └── thesis_summary.md
 ```
 
-## Key Results
-
-- Developed a reproducible Python pipeline for processing conductivity 
-  fluctuation data.
-- Performed exploratory analysis and visualization of time-series signals.
-- Extracted features characterizing conductivity fluctuations.
-- Applied and compared machine learning methods for analyzing relationships 
-  between signal characteristics and film composition.
-- Identified suitable ML approaches for experimental data analysis.
-
-## How to Run
-
-1. Clone the repository:
+## Installation
 
 ```bash
-git clone [https://github.com/username/conductivity-films-analysis.git](https://github.com/username/conductivity-films-analysis.git)
-cd conductivity-films-analysis
-```
+git clone [https://github.com/Katterina07/conductivity-fluctuation-analysis.git](https://github.com/Katterina07/conductivity-fluctuation-analysis.git)
+cd conductivity-fluctuation-analysis
 
-2. Create and activate a virtual environment:
-
-```bash
 python -m venv .venv
-source .venv/bin/activate
-```
+source .venv/bin/activate  # macOS/Linux
+# .venv\Scripts\activate   # Windows
 
-On Windows:
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-3. Install dependencies:
-
-```bash
 pip install -r requirements.txt
 ```
 
-4. Open Jupyter Notebook:
+## Usage
+
+### 1. Process raw experimental data
 
 ```bash
-jupyter notebook
+python src/build_dataset.py
 ```
 
-## Notes
+This reads `.Q00` files, splits signals into samples, removes trends, computes spectral features, and saves a combined dataset.
 
-The original experimental dataset is not included in this repository. 
-The repository demonstrates the full analytical workflow: data preprocessing, 
-exploratory analysis, feature engineering, visualization, and machine learning.
+### 2. Train and evaluate models
+
+```bash
+python src/train_models.py
+```
+
+This trains K-Means, KNN, and a fully connected neural network, then saves metrics and plots.
+
+### 3. Classify raw samples with KNN
+
+```bash
+python src/train_knn_raw_samples.py
+```
+
+This loads `.Q03` files, labels samples by film material, and trains a KNN classifier.
+
+## Results
+
+After running the pipeline, the following outputs are created:
+
+```text
+results/
+├── figures/
+│   ├── kmeans_clusters.png
+│   ├── neural_network_confusion_matrix.png
+│   └── knn_raw_samples_confusion_matrix.png
+└── metrics/
+    ├── model_metrics.csv
+    └── knn_raw_samples_metrics.csv
+```
+
+## Important Note
+
+This repository contains a **reconstructed and cleaned implementation** of the data-processing and machine-learning pipeline described in my Bachelor’s thesis.
+
+The original final code was not fully preserved. This version was rebuilt from earlier working notebooks and the methodology described in the thesis.
+
+## Tools
+
+- Python
+- NumPy
+- Pandas
+- SciPy
+- Scikit-learn
+- Matplotlib
+- Seaborn
+- Jupyter / Google Colab
 
 ## License
 
-This project is licensed under the MIT License.
+This project is released under the MIT License.
