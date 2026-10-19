@@ -85,61 +85,6 @@ def prepare_training_data(df: pd.DataFrame):
     return X, y, df_train
 
 
-def plot_material_scatter(
-    df_train: pd.DataFrame,
-    df_irradiated: pd.DataFrame,
-    path: Path,
-):
-    """
-    Compare stable training films with irradiated films.
-    """
-    plt.figure(figsize=(11, 7))
-
-    for material in MATERIAL_ORDER:
-        stable = df_train[df_train["material"] == material]
-        irradiated = df_irradiated[df_irradiated["material"] == material]
-
-        plt.scatter(
-            stable["gamma"],
-            stable["log_energy"],
-            label=f"{material_name(material)} — stable",
-            color=MATERIAL_COLORS[material],
-            alpha=0.45,
-            s=25,
-            edgecolor="none",
-        )
-
-        if not irradiated.empty:
-            plt.scatter(
-                irradiated["gamma"],
-                irradiated["log_energy"],
-                label=f"{material_name(material)} — irradiated",
-                color=MATERIAL_COLORS[material],
-                marker="X",
-                s=120,
-                edgecolor="black",
-                linewidth=0.7,
-            )
-
-    plt.xlabel("Spectral exponent γ", fontsize=12)
-    plt.ylabel("Log10 spectral energy", fontsize=12)
-    plt.title(
-        "1/f Noise Features:\nStable Training Films vs Irradiated Films",
-        fontsize=14,
-        pad=15,
-    )
-    plt.legend(
-        title="Material / state",
-        fontsize=9,
-        title_fontsize=10,
-        frameon=True,
-    )
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(path, dpi=300, bbox_inches="tight")
-    plt.close()
-
-
 def plot_clusters(
     X_scaled: np.ndarray,
     labels: np.ndarray,
@@ -222,60 +167,146 @@ def plot_confusion_matrix(
     plt.close()
 
 
-def plot_irradiated_comparison(
+def plot_file_level_comparison(
     df: pd.DataFrame,
     feature: str,
-    xlabel: str,
+    ylabel: str,
     filename: str,
 ):
     """
-    Compare stable films with irradiated films for one spectral feature.
+    Compare stable and irradiated films using file-level mean values.
+
+    Error bars show one standard deviation within each file.
     """
-    plt.figure(figsize=(11, 6.5))
+    summary = (
+        df[df["material"] != REFERENCE_LABEL]
+        .groupby(["file", "material", "irradiated"], as_index=False)
+        .agg(
+            mean_value=(feature, "mean"),
+            std_value=(feature, "std"),
+            n_samples=(feature, "size"),
+        )
+    )
+
+    summary["label"] = summary["file"] + "\n(" + summary["material"] + ")"
+
+    summary = summary.sort_values(
+        ["material", "irradiated", "file"],
+        ascending=[True, True, True],
+    )
+
+    plt.figure(figsize=(13, 7))
 
     for material in MATERIAL_ORDER:
-        stable = df[
-            (df["material"] == material)
-            & (df["used_for_training"] == True)
-            & (df["irradiated"] == False)
-        ]
+        material_summary = summary[summary["material"] == material]
 
-        irradiated = df[
-            (df["material"] == material)
-            & (df["irradiated"] == True)
-        ]
+        for _, row in material_summary.iterrows():
+            marker = "o" if not row["irradiated"] else "X"
+            edgecolor = (
+                "black" if row["irradiated"] else MATERIAL_COLORS[material]
+            )
+            linewidth = 1.2 if row["irradiated"] else 0.8
 
-        plt.scatter(
-            stable[feature],
-            [material_name(material)] * len(stable),
-            label=f"{material_name(material)} — stable",
-            color=MATERIAL_COLORS[material],
-            alpha=0.35,
-            s=20,
-            edgecolor="none",
-        )
-
-        if not irradiated.empty:
-            plt.scatter(
-                irradiated[feature],
-                [material_name(material)] * len(irradiated),
-                marker="X",
-                s=120,
-                label=f"{material_name(material)} — irradiated",
+            plt.errorbar(
+                row["label"],
+                row["mean_value"],
+                yerr=row["std_value"],
+                fmt=marker,
+                markersize=10,
                 color=MATERIAL_COLORS[material],
-                edgecolor="black",
-                linewidth=0.7,
+                markeredgecolor=edgecolor,
+                markeredgewidth=linewidth,
+                capsize=5,
+                elinewidth=1.5,
+                label=(
+                    f"{material_name(material)} — "
+                    + ("irradiated" if row["irradiated"] else "stable")
+                ),
             )
 
-    plt.xlabel(xlabel, fontsize=12)
-    plt.ylabel("Material", fontsize=12)
+    plt.ylabel(ylabel, fontsize=12)
+    plt.xlabel("Measurement file", fontsize=12)
     plt.title(
-        f"Effect of Electromagnetic Pulse Irradiation on {xlabel}",
+        f"File-Level Comparison of {ylabel}\nStable vs Irradiated Films",
         fontsize=14,
         pad=15,
     )
-    plt.legend(fontsize=8, title_fontsize=10, loc="best")
-    plt.grid(True, alpha=0.3)
+    plt.xticks(rotation=45, ha="right", fontsize=9)
+    plt.grid(True, axis="y", alpha=0.3)
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    unique = dict(zip(labels, handles))
+
+    plt.legend(
+        unique.values(),
+        unique.keys(),
+        fontsize=9,
+        title_fontsize=10,
+        loc="best",
+    )
+
+    plt.tight_layout()
+    plt.savefig(FIGURES_DIR / filename, dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+def plot_feature_boxplots(
+    df: pd.DataFrame,
+    feature: str,
+    ylabel: str,
+    filename: str,
+):
+    """
+    Compare the distribution of a spectral feature for each measurement file.
+    """
+    plot_df = df[df["material"] != REFERENCE_LABEL].copy()
+    plot_df["file_label"] = (
+        plot_df["file"] + "\n(" + plot_df["material"] + ")"
+    )
+
+    file_order = (
+        plot_df[["file", "material", "irradiated"]]
+        .drop_duplicates()
+        .sort_values(["material", "irradiated", "file"])
+    )
+
+    ordered_labels = [
+        f"{row['file']}\n({row['material']})"
+        for _, row in file_order.iterrows()
+    ]
+
+    plt.figure(figsize=(15, 7))
+
+    sns.boxplot(
+        data=plot_df,
+        x="file_label",
+        y=feature,
+        hue="irradiated",
+        order=ordered_labels,
+        palette={False: "#B0BEC5", True: "#FFB74D"},
+        showfliers=False,
+        width=0.7,
+    )
+
+    plt.ylabel(ylabel, fontsize=12)
+    plt.xlabel("Measurement file", fontsize=12)
+    plt.title(
+        f"Distribution of {ylabel}\nby Measurement File and Irradiation State",
+        fontsize=14,
+        pad=15,
+    )
+    plt.xticks(rotation=45, ha="right", fontsize=9)
+    plt.grid(True, axis="y", alpha=0.3)
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    plt.legend(
+        handles,
+        ["Stable", "Irradiated"],
+        title="Film state",
+        fontsize=10,
+        title_fontsize=11,
+    )
+
     plt.tight_layout()
     plt.savefig(FIGURES_DIR / filename, dpi=300, bbox_inches="tight")
     plt.close()
@@ -472,24 +503,35 @@ def main():
         scaler=scaler,
     )
 
-    plot_material_scatter(
-        df_train=df_train,
-        df_irradiated=df_irradiated,
-        path=FIGURES_DIR / "stable_vs_irradiated_films.png",
-    )
-
-    plot_irradiated_comparison(
+    # -----------------------------
+    # File-level comparison plots
+    # -----------------------------
+    plot_file_level_comparison(
         df=df,
         feature="gamma",
-        xlabel="Spectral exponent γ",
-        filename="irradiated_gamma_comparison.png",
+        ylabel="Spectral exponent γ",
+        filename="file_level_gamma_comparison.png",
     )
 
-    plot_irradiated_comparison(
+    plot_file_level_comparison(
         df=df,
         feature="log_energy",
-        xlabel="Log10 spectral energy",
-        filename="irradiated_energy_comparison.png",
+        ylabel="Log10 spectral energy",
+        filename="file_level_energy_comparison.png",
+    )
+
+    plot_feature_boxplots(
+        df=df,
+        feature="gamma",
+        ylabel="Spectral exponent γ",
+        filename="gamma_boxplots_by_file.png",
+    )
+
+    plot_feature_boxplots(
+        df=df,
+        feature="log_energy",
+        ylabel="Log10 spectral energy",
+        filename="energy_boxplots_by_file.png",
     )
 
     # -----------------------------
