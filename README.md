@@ -1,14 +1,12 @@
-# conductivity-fluctuation-analysis
-Machine learning analysis of conductivity fluctuations in thin metal films: Python, time-series processing, K-Means, KNN, and neural networks.
 # Conductivity Fluctuation Analysis in Thin Metal Films
 
 Machine learning project based on my Bachelor’s thesis in Applied Mathematics and Physics.
 
-The project analyzes low-frequency conductivity fluctuations in bismuth, iron, and chromium thin films. It combines experimental time-series processing, spectral feature extraction, clustering, and classification.
+The project analyzes low-frequency conductivity fluctuations in bismuth, chromium, and iron thin films. It combines experimental time-series processing, spectral feature extraction, clustering, and classification.
 
 ## Project Goal
 
-To determine whether conductivity fluctuation patterns can be used to distinguish thin metal films of different compositions.
+To determine whether conductivity fluctuation patterns can be used to distinguish thin metal films of different compositions and to separate composition-independent noise using a modal reference film.
 
 ## Key Result
 
@@ -26,19 +24,17 @@ The project uses experimental conductivity fluctuation measurements from thin me
 
 The original experimental dataset cannot be shared publicly. The repository expects CSV or binary input files with time-series conductivity measurements.
 
-Expected input structure:
+Material groups:
 
-```text
-data/
-├── q00/          # raw binary acquisition files
-│   ├── BFC02C01.Q00
-│   ├── BI202C01.Q00
-│   └── ...
-└── q03/          # processed fixed-length samples
-    ├── BFC02C01.Q03
-    ├── BI202C01.Q03
-    └── ...
-```
+- BI — bismuth films
+- CR — chromium films
+- FE — iron films
+
+Reference group:
+
+- XXX — modal reference film
+
+The reference film was used to identify conductivity fluctuation components that are not related to the chemical composition of the material films.
 
 ## Methods
 
@@ -77,7 +73,8 @@ Two modeling approaches are implemented:
 ├── src/
 │   ├── signal_processing.py
 │   ├── build_dataset.py
-│   └── train_models.py
+│   ├── train_models.py
+│   └── train_knn_raw_samples.py
 ├── results/
 │   ├── figures/
 │   └── metrics/
@@ -106,23 +103,17 @@ pip install -r requirements.txt
 python src/build_dataset.py
 ```
 
-This reads `.Q00` files, splits signals into samples, removes trends, computes spectral features, and saves a combined dataset.
-
-### 2. Train and evaluate models
+### 2. Train and evaluate feature-based models
 
 ```bash
 python src/train_models.py
 ```
-
-This trains K-Means, KNN, and a fully connected neural network, then saves metrics and plots.
 
 ### 3. Classify raw samples with KNN
 
 ```bash
 python src/train_knn_raw_samples.py
 ```
-
-This loads `.Q03` files, labels samples by film material, and trains a KNN classifier.
 
 ## Results
 
@@ -131,12 +122,17 @@ After running the pipeline, the following outputs are created:
 ```text
 results/
 ├── figures/
+│   ├── feature_distribution.png
 │   ├── kmeans_clusters.png
 │   ├── neural_network_confusion_matrix.png
-│   └── knn_raw_samples_confusion_matrix.png
+│   ├── knn_raw_samples_confusion_matrix.png
+│   ├── reference_vs_materials_gamma.png
+│   └── reference_vs_materials_energy.png
 └── metrics/
     ├── model_metrics.csv
-    └── knn_raw_samples_metrics.csv
+    ├── knn_raw_samples_metrics.csv
+    ├── reference_film_summary.csv
+    └── material_film_summary.csv
 ```
 
 ## Important Note
