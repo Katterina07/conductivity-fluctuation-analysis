@@ -8,12 +8,9 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Experimental data and generated large files
+# Generated processed data
 data/processed/
-*.Q01
 *.csv
-*.zip
-*.rar
 
 # OS files
 .DS_Store
