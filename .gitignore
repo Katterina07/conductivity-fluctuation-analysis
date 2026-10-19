@@ -8,9 +8,8 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Generated processed data
-data/processed/
-*.csv
+# Raw experimental data
+data/q00/
 
 # OS files
 .DS_Store
