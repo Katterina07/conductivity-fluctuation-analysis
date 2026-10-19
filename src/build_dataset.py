@@ -18,9 +18,10 @@ import pandas as pd
 from signal_processing import process_file
 
 
-INPUT_DIR = Path("../data/q00")
-OUTPUT_DIR = Path("../data/processed")
-DATASET_PATH = Path("../data/processed/conductivity_features.csv")
+BASE_DIR = Path(__file__).resolve().parents[1]
+INPUT_DIR = BASE_DIR / "data" / "q00"
+OUTPUT_DIR = BASE_DIR / "data" / "processed"
+DATASET_PATH = BASE_DIR / "data" / "processed" / "conductivity_features.csv"
 
 SAMPLE_LENGTH = 128
 OVERLAP_MODE = 2  # 50% overlap
