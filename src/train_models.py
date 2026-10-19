@@ -42,9 +42,7 @@ def load_dataset():
     """
     Load the combined feature dataset.
     """
-    df = pd.read_csv(DATASET_PATH)
-
-    return df
+    return pd.read_csv(DATASET_PATH)
 
 
 def prepare_material_dataset(df):
@@ -163,6 +161,7 @@ def analyze_reference_film(df):
     df_materials_plot["log_energy"] = np.log10(
         df_materials_plot["energy"].clip(lower=1e-30)
     )
+
     df_reference_plot["log_energy"] = np.log10(
         df_reference_plot["energy"].clip(lower=1e-30)
     )
@@ -205,6 +204,7 @@ def analyze_reference_film(df):
     reference_summary.to_csv(
         METRICS_DIR / "reference_film_summary.csv"
     )
+
     material_summary.to_csv(
         METRICS_DIR / "material_film_summary.csv"
     )
