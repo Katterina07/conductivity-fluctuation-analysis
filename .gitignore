@@ -8,7 +8,7 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Data and large files
+# Experimental data and generated large files
 data/q00/
 data/q03/
 data/processed/
