@@ -9,9 +9,7 @@ env/
 .ipynb_checkpoints/
 
 # Experimental data and generated large files
-data/q00/
 data/processed/
-*.Q00
 *.Q01
 *.csv
 *.zip
