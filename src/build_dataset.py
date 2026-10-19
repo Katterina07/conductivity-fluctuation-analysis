@@ -18,7 +18,7 @@ import pandas as pd
 from signal_processing import process_file
 
 
-INPUT_DIR = Path("../data/q00")
+INPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "q00"
 OUTPUT_DIR = Path("../data/processed")
 DATASET_PATH = Path("../data/processed/conductivity_features.csv")
 
