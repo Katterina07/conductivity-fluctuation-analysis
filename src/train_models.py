@@ -287,8 +287,8 @@ def analyze_irradiated_films(
     scaler,
 ):
     """
-    Apply the trained model to irradiated films and estimate
-    whether their noise features remain close to the original material.
+    Apply the trained model to irradiated films and summarize
+    radiation-induced changes at the file level.
     """
     df_irradiated = df[df["irradiated"] == True].copy()
 
@@ -307,16 +307,44 @@ def analyze_irradiated_films(
         probabilities = model.predict_proba(X_irradiated_scaled)
         df_irradiated["prediction_confidence"] = probabilities.max(axis=1)
 
-    print("\nIrradiated film analysis:")
+    summary = (
+        df_irradiated
+        .groupby(["file", "material"], as_index=False)
+        .agg(
+            n_samples=("gamma", "size"),
+            gamma_mean=("gamma", "mean"),
+            gamma_std=("gamma", "std"),
+            log_energy_mean=("log_energy", "mean"),
+            log_energy_std=("log_energy", "std"),
+            predicted_material=(
+                "predicted_material",
+                lambda x: x.mode().iloc[0],
+            ),
+            mean_prediction_confidence=(
+                "prediction_confidence",
+                "mean",
+            ),
+        )
+    )
+
+    summary["prediction_agreement"] = (
+        summary["material"] == summary["predicted_material"]
+    )
+
+    print("\nIrradiated film analysis (file-level summary):")
     print(
-        df_irradiated[
+        summary[
             [
                 "file",
                 "material",
-                "gamma",
-                "log_energy",
+                "n_samples",
+                "gamma_mean",
+                "gamma_std",
+                "log_energy_mean",
+                "log_energy_std",
                 "predicted_material",
-                "prediction_confidence",
+                "mean_prediction_confidence",
+                "prediction_agreement",
             ]
         ]
         .to_string(index=False)
