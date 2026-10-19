@@ -29,9 +29,8 @@ from sklearn.preprocessing import StandardScaler
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 DATASET_PATH = BASE_DIR / "data" / "processed" / "conductivity_features.csv"
-RESULTS_DIR = Path("../results")
-FIGURES_DIR = RESULTS_DIR / "figures"
-METRICS_DIR = RESULTS_DIR / "metrics"
+FIGURES_DIR = BASE_DIR / "results" / "figures"
+METRICS_DIR = BASE_DIR / "results" / "metrics"
 
 REFERENCE_LABEL = "XXX"
 MATERIAL_ORDER = ["BI", "CR", "FE"]
