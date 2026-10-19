@@ -37,6 +37,27 @@ MATERIAL_ORDER = ["BI", "CR", "FE"]
 
 RANDOM_STATE = 42
 
+MATERIAL_NAMES = {
+    "BI": "Bismuth (Bi)",
+    "CR": "Chromium (Cr)",
+    "FE": "Iron (Fe)",
+    "XXX": "Reference film",
+}
+
+MATERIAL_COLORS = {
+    "BI": "#4C72B0",
+    "CR": "#DD8452",
+    "FE": "#55A868",
+    "XXX": "#000000",
+}
+
+
+def get_material_name(label: str) -> str:
+    """
+    Convert a short material code into a readable plot label.
+    """
+    return MATERIAL_NAMES.get(label, label)
+
 
 def load_dataset():
     """
@@ -67,21 +88,72 @@ def plot_clusters(X_scaled, labels, path):
     """
     Save a K-Means cluster plot.
     """
-    plt.figure(figsize=(9, 6))
+    plt.figure(figsize=(10, 6.5))
 
-    sns.scatterplot(
-        x=X_scaled[:, 0],
-        y=X_scaled[:, 1],
-        hue=labels,
-        palette="tab10",
-        s=25,
+    scatter = plt.scatter(
+        X_scaled[:, 0],
+        X_scaled[:, 1],
+        c=labels,
+        cmap="viridis",
+        s=35,
+        alpha=0.8,
+        edgecolor="black",
+        linewidth=0.3,
     )
 
-    plt.xlabel("Gamma (scaled)")
-    plt.ylabel("Log10 energy (scaled)")
-    plt.title("K-Means clustering of conductivity fluctuation features")
+    plt.xlabel("Spectral exponent γ (standardized)", fontsize=12)
+    plt.ylabel("Log10 spectral energy (standardized)", fontsize=12)
+    plt.title(
+        "K-Means Clustering of Conductivity Fluctuation Features",
+        fontsize=14,
+        pad=15,
+    )
+
+    cbar = plt.colorbar(scatter)
+    cbar.set_label("Cluster ID", fontsize=11)
+
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(path, dpi=300)
+    plt.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+def plot_material_scatter(df_materials, path):
+    """
+    Save a scatter plot colored by the true material.
+    """
+    plt.figure(figsize=(10, 6.5))
+
+    for material in MATERIAL_ORDER:
+        subset = df_materials[df_materials["material"] == material]
+
+        plt.scatter(
+            subset["gamma"],
+            np.log10(subset["energy"].clip(lower=1e-30)),
+            label=get_material_name(material),
+            color=MATERIAL_COLORS[material],
+            alpha=0.75,
+            s=35,
+            edgecolor="black",
+            linewidth=0.3,
+        )
+
+    plt.xlabel("Spectral exponent γ", fontsize=12)
+    plt.ylabel("Log10 spectral energy", fontsize=12)
+    plt.title(
+        "1/f Noise Features by Thin-Film Material",
+        fontsize=14,
+        pad=15,
+    )
+    plt.legend(
+        title="Material",
+        fontsize=10,
+        title_fontsize=11,
+        frameon=True,
+    )
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(path, dpi=300, bbox_inches="tight")
     plt.close()
 
 
@@ -89,24 +161,38 @@ def plot_confusion_matrix(y_test, y_pred, labels, path):
     """
     Save a confusion matrix.
     """
+    readable_labels = [get_material_name(label) for label in labels]
+
     cm = confusion_matrix(y_test, y_pred, labels=labels)
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(9, 7))
 
-    sns.heatmap(
+    ax = sns.heatmap(
         cm,
         annot=True,
         fmt="d",
         cmap="Blues",
-        xticklabels=labels,
-        yticklabels=labels,
+        xticklabels=readable_labels,
+        yticklabels=readable_labels,
+        cbar_kws={"label": "Number of test samples"},
+        linewidths=0.5,
+        linecolor="white",
+        annot_kws={"fontsize": 12},
     )
 
-    plt.xlabel("Predicted material")
-    plt.ylabel("True material")
-    plt.title("Neural network confusion matrix")
+    ax.set_xlabel("Predicted material", fontsize=12, labelpad=10)
+    ax.set_ylabel("True material", fontsize=12, labelpad=10)
+    ax.set_title(
+        "Neural Network Classification\nof Thin-Film Materials",
+        fontsize=14,
+        pad=15,
+    )
+
+    plt.xticks(rotation=30, ha="right", fontsize=11)
+    plt.yticks(rotation=0, fontsize=11)
+
     plt.tight_layout()
-    plt.savefig(path, dpi=300)
+    plt.savefig(path, dpi=300, bbox_inches="tight")
     plt.close()
 
 
@@ -124,33 +210,47 @@ def analyze_reference_film(df):
     print(f"Material film samples: {len(df_materials)}")
 
     # Gamma distribution
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 6.5))
+
+    for material in MATERIAL_ORDER:
+        subset = df_materials[df_materials["material"] == material]
+
+        sns.kdeplot(
+            x=subset["gamma"],
+            fill=True,
+            alpha=0.25,
+            color=MATERIAL_COLORS[material],
+            label=get_material_name(material),
+        )
 
     sns.kdeplot(
-        data=df_materials,
-        x="gamma",
-        hue="material",
-        common_norm=False,
-        fill=True,
-        alpha=0.25,
-    )
-
-    sns.kdeplot(
-        data=df_reference,
-        x="gamma",
+        x=df_reference["gamma"],
         color="black",
-        linewidth=2,
-        label="XXX reference film",
+        linewidth=2.5,
+        linestyle="--",
+        label="Reference film (XXX)",
     )
 
-    plt.xlabel("Gamma")
-    plt.ylabel("Density")
-    plt.title("Gamma distribution: material films vs reference film")
-    plt.legend()
+    plt.xlabel("Spectral exponent γ", fontsize=12)
+    plt.ylabel("Density", fontsize=12)
+    plt.title(
+        "Distribution of the 1/f Noise Spectral Exponent\n"
+        "Material Films vs Reference Film",
+        fontsize=14,
+        pad=15,
+    )
+    plt.legend(
+        title="Material",
+        fontsize=10,
+        title_fontsize=11,
+        frameon=True,
+    )
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig(
         FIGURES_DIR / "reference_vs_materials_gamma.png",
         dpi=300,
+        bbox_inches="tight",
     )
     plt.close()
 
@@ -166,33 +266,49 @@ def analyze_reference_film(df):
         df_reference_plot["energy"].clip(lower=1e-30)
     )
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 6.5))
+
+    for material in MATERIAL_ORDER:
+        subset = df_materials_plot[
+            df_materials_plot["material"] == material
+        ]
+
+        sns.kdeplot(
+            x=subset["log_energy"],
+            fill=True,
+            alpha=0.25,
+            color=MATERIAL_COLORS[material],
+            label=get_material_name(material),
+        )
 
     sns.kdeplot(
-        data=df_materials_plot,
-        x="log_energy",
-        hue="material",
-        common_norm=False,
-        fill=True,
-        alpha=0.25,
-    )
-
-    sns.kdeplot(
-        data=df_reference_plot,
-        x="log_energy",
+        x=df_reference_plot["log_energy"],
         color="black",
-        linewidth=2,
-        label="XXX reference film",
+        linewidth=2.5,
+        linestyle="--",
+        label="Reference film (XXX)",
     )
 
-    plt.xlabel("Log10 spectral energy")
-    plt.ylabel("Density")
-    plt.title("Energy distribution: material films vs reference film")
-    plt.legend()
+    plt.xlabel("Log10 spectral energy", fontsize=12)
+    plt.ylabel("Density", fontsize=12)
+    plt.title(
+        "Distribution of Spectral Energy\n"
+        "Material Films vs Reference Film",
+        fontsize=14,
+        pad=15,
+    )
+    plt.legend(
+        title="Material",
+        fontsize=10,
+        title_fontsize=11,
+        frameon=True,
+    )
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig(
         FIGURES_DIR / "reference_vs_materials_energy.png",
         dpi=300,
+        bbox_inches="tight",
     )
     plt.close()
 
@@ -217,6 +333,12 @@ def main():
     df = load_dataset()
 
     analyze_reference_film(df)
+
+    df_materials = df[df["material"] != REFERENCE_LABEL].copy()
+    plot_material_scatter(
+        df_materials,
+        FIGURES_DIR / "material_features_scatter.png",
+    )
 
     X, y = prepare_material_dataset(df)
 
@@ -276,7 +398,7 @@ def main():
             y_test,
             knn_pred,
             labels=MATERIAL_ORDER,
-            target_names=MATERIAL_ORDER,
+            target_names=[get_material_name(label) for label in MATERIAL_ORDER],
             zero_division=0,
         )
     )
@@ -306,7 +428,7 @@ def main():
             y_test,
             mlp_pred,
             labels=MATERIAL_ORDER,
-            target_names=MATERIAL_ORDER,
+            target_names=[get_material_name(label) for label in MATERIAL_ORDER],
             zero_division=0,
         )
     )
@@ -347,6 +469,7 @@ def main():
     )
 
     print(f"Metrics saved: {METRICS_DIR / 'model_metrics.csv'}")
+    print(f"Figures saved: {FIGURES_DIR}")
 
 
 if __name__ == "__main__":
