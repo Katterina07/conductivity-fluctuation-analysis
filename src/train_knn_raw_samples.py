@@ -25,8 +25,9 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 
-DATA_DIR = Path("../data/q03")
-RESULTS_DIR = Path("../results")
+BASE_DIR = Path(__file__).resolve().parents[1]
+DATA_DIR = BASE_DIR / "data" / "q03"
+RESULTS_DIR = BASE_DIR / "results"
 FIGURES_DIR = RESULTS_DIR / "figures"
 METRICS_DIR = RESULTS_DIR / "metrics"
 
@@ -48,6 +49,20 @@ FILE_LABELS = {
     "XXX01C03": "XXX",
     "XXX01C05": "XXX",
 }
+
+MATERIAL_NAMES = {
+    "BI": "Bismuth (Bi)",
+    "CR": "Chromium (Cr)",
+    "FE": "Iron (Fe)",
+    "XXX": "Reference film",
+}
+
+
+def get_material_name(label: str) -> str:
+    """
+    Convert a short material code into a readable plot label.
+    """
+    return MATERIAL_NAMES.get(label, label)
 
 
 def load_q03_samples(file_path: Path, sample_length: int):
@@ -105,7 +120,7 @@ def build_dataset():
 
         print(
             f"{file_stem}: {len(samples)} samples, "
-            f"label={material}"
+            f"label={get_material_name(material)}"
         )
 
     if not X_parts:
@@ -121,24 +136,81 @@ def plot_confusion_matrix(y_test, y_pred, labels, path):
     """
     Save a confusion matrix for the raw-sample KNN model.
     """
+    readable_labels = [get_material_name(label) for label in labels]
+
     cm = confusion_matrix(y_test, y_pred, labels=labels)
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(9, 7))
 
-    sns.heatmap(
+    ax = sns.heatmap(
         cm,
         annot=True,
         fmt="d",
         cmap="Blues",
-        xticklabels=labels,
-        yticklabels=labels,
+        xticklabels=readable_labels,
+        yticklabels=readable_labels,
+        cbar_kws={"label": "Number of test samples"},
+        linewidths=0.5,
+        linecolor="white",
+        annot_kws={"fontsize": 12},
     )
 
-    plt.xlabel("Predicted material")
-    plt.ylabel("True material")
-    plt.title("KNN confusion matrix — raw conductivity samples")
+    ax.set_xlabel("Predicted material", fontsize=12, labelpad=10)
+    ax.set_ylabel("True material", fontsize=12, labelpad=10)
+    ax.set_title(
+        "KNN Classification of Thin-Film Materials\n"
+        "Raw Conductivity Fluctuation Samples",
+        fontsize=14,
+        pad=15,
+    )
+
+    plt.xticks(rotation=30, ha="right", fontsize=11)
+    plt.yticks(rotation=0, fontsize=11)
+
     plt.tight_layout()
-    plt.savefig(path, dpi=300)
+    plt.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+def plot_class_distribution(y, path):
+    """
+    Save a bar chart showing the number of samples per material.
+    """
+    unique_labels, counts = np.unique(y, return_counts=True)
+
+    readable_labels = [get_material_name(label) for label in unique_labels]
+
+    colors = {
+        "Bismuth (Bi)": "#4C72B0",
+        "Chromium (Cr)": "#DD8452",
+        "Iron (Fe)": "#55A868",
+    }
+
+    bar_colors = [colors.get(label, "#8172B3") for label in readable_labels]
+
+    plt.figure(figsize=(9, 6))
+    bars = plt.bar(readable_labels, counts, color=bar_colors, edgecolor="black")
+
+    for bar, count in zip(bars, counts):
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + max(counts) * 0.01,
+            str(count),
+            ha="center",
+            va="bottom",
+            fontsize=11,
+        )
+
+    plt.xlabel("Material", fontsize=12)
+    plt.ylabel("Number of samples", fontsize=12)
+    plt.title(
+        "Class Distribution of Conductivity Fluctuation Samples",
+        fontsize=14,
+        pad=15,
+    )
+    plt.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(path, dpi=300, bbox_inches="tight")
     plt.close()
 
 
@@ -182,7 +254,7 @@ def main():
             y_test,
             y_pred,
             labels=MATERIAL_ORDER,
-            target_names=MATERIAL_ORDER,
+            target_names=[get_material_name(label) for label in MATERIAL_ORDER],
             zero_division=0,
         )
     )
@@ -207,6 +279,11 @@ def main():
         path=FIGURES_DIR / "knn_raw_samples_confusion_matrix.png",
     )
 
+    plot_class_distribution(
+        y=y,
+        path=FIGURES_DIR / "class_distribution.png",
+    )
+
     results = pd.DataFrame(
         [
             {
@@ -228,6 +305,10 @@ def main():
     print(
         "Metrics saved:",
         METRICS_DIR / "knn_raw_samples_metrics.csv",
+    )
+    print(
+        "Figures saved:",
+        FIGURES_DIR,
     )
 
 
