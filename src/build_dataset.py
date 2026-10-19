@@ -42,12 +42,12 @@ MATERIAL_COLORS = {
 
 # Training files: stable non-irradiated films
 TRAINING_FILES = {
-    "bi202c01": "BI",
-    "bi304c01": "BI",
-    "cr202c01": "CR",
-    "cr304c01": "CR",
-    "fe202c01": "FE",
-    "fe104c01": "FE",
+    "BI202C01": "BI",
+    "BI304C01": "BI",
+    "CR202C01": "CR",
+    "CR304C01": "CR",
+    "FE202C01": "FE",
+    "FE104C01": "FE",
 }
 
 # Reference films: composition-independent noise
@@ -59,93 +59,93 @@ REFERENCE_FILES = {
 
 # Irradiated films: used for scientific analysis, not supervised training
 IRRADIATED_FILES = {
-    "bi105c01": "BI",
-    "bi106c01": "BI",
-    "cr205c01": "CR",
-    "cr206c01": "CR",
-    "fe105c01": "FE",
-    "fe106c01": "FE",
+    "BI105C01": "BI",
+    "BI106C01": "BI",
+    "CR205C01": "CR",
+    "CR206C01": "CR",
+    "FE105C01": "FE",
+    "FE106C01": "FE",
 }
 
 FILE_METADATA = {
-    "bi202c01": {
+    "BI202C01": {
         "material": "BI",
         "year": 2005,
         "irradiated": False,
         "measurement_period": "2005-08-14_2005-08-29",
         "sampling_rate_hz": 1.73,
     },
-    "bi304c01": {
+    "BI304C01": {
         "material": "BI",
         "year": 2005,
         "irradiated": False,
         "measurement_period": "2005-09-02_2005-10-13",
         "sampling_rate_hz": 1.73,
     },
-    "cr202c01": {
+    "CR202C01": {
         "material": "CR",
         "year": 2005,
         "irradiated": False,
         "measurement_period": "2005-08-14_2005-08-29",
         "sampling_rate_hz": 1.73,
     },
-    "cr304c01": {
+    "CR304C01": {
         "material": "CR",
         "year": 2005,
         "irradiated": False,
         "measurement_period": "2005-09-02_2005-10-13",
         "sampling_rate_hz": 1.73,
     },
-    "fe202c01": {
+    "FE202C01": {
         "material": "FE",
         "year": 2005,
         "irradiated": False,
         "measurement_period": "2005-08-14_2005-08-29",
         "sampling_rate_hz": 1.73,
     },
-    "fe104c01": {
+    "FE104C01": {
         "material": "FE",
         "year": 2005,
         "irradiated": False,
         "measurement_period": "2005-09-02_2005-10-13",
         "sampling_rate_hz": 1.73,
     },
-    "bi105c01": {
+    "BI105C01": {
         "material": "BI",
         "year": 2006,
         "irradiated": True,
         "measurement_period": "2006-03-31_2006-04-29",
         "sampling_rate_hz": 1.73,
     },
-    "bi106c01": {
+    "BI106C01": {
         "material": "BI",
         "year": 2006,
         "irradiated": True,
         "measurement_period": "2006-04-29_2006-06-30",
         "sampling_rate_hz": 1.73,
     },
-    "cr205c01": {
+    "CR205C01": {
         "material": "CR",
         "year": 2006,
         "irradiated": True,
         "measurement_period": "2006-03-31_2006-04-29",
         "sampling_rate_hz": 1.73,
     },
-    "cr206c01": {
+    "CR206C01": {
         "material": "CR",
         "year": 2006,
         "irradiated": True,
         "measurement_period": "2006-04-29_2006-06-30",
         "sampling_rate_hz": 1.73,
     },
-    "fe105c01": {
+    "FE105C01": {
         "material": "FE",
         "year": 2006,
         "irradiated": True,
         "measurement_period": "2006-03-31_2006-04-29",
         "sampling_rate_hz": 1.73,
     },
-    "fe106c01": {
+    "FE106C01": {
         "material": "FE",
         "year": 2006,
         "irradiated": True,
