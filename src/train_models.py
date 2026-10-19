@@ -27,7 +27,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 
 
-DATASET_PATH = Path("../data/processed/conductivity_features.csv")
+BASE_DIR = Path(__file__).resolve().parents[1]
+DATASET_PATH = BASE_DIR / "data" / "processed" / "conductivity_features.csv"
 RESULTS_DIR = Path("../results")
 FIGURES_DIR = RESULTS_DIR / "figures"
 METRICS_DIR = RESULTS_DIR / "metrics"
