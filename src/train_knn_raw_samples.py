@@ -49,13 +49,14 @@ if str(SRC_DIR) not in sys.path:
 from signal_processing import (
     DATA_DIR,
     FIGURES_DIR,
-    METRICS_DIR,
     TRAINING_FILES,
     REFERENCE_FILES,
     IRRADIATED_FILES,
     read_q00_file,
     split_into_samples,
 )
+
+METRICS_DIR = BASE_DIR / "results" / "metrics"
 
 
 SAMPLE_LENGTH = 128
