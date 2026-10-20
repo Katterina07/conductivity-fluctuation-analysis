@@ -1,4 +1,4 @@
 model,metric,value
-K-Means,silhouette_score,0.5097471270161078
-KNN,accuracy,0.8609527216108738
-Neural network,accuracy,0.882361604982431
+K-Means,silhouette_score,0.5098309839068161
+KNN,accuracy,0.8609948029541103
+Neural network,accuracy,0.882266921960149
