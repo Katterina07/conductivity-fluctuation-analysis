@@ -27,6 +27,16 @@ The main result of the original thesis — **89.41% accuracy** — was obtained 
 fully connected neural network using spectral features, rather than with KNN on raw
 time-domain samples.
 
+## Figures
+
+### Class distribution
+
+![Class distribution](results/figures/class_distribution.png)
+
+### KNN confusion matrix
+
+![KNN raw-sample random-split confusion matrix](results/figures/knn_raw_q00_random_split_confusion_matrix.png)
+
 ## Data and features
 
 The input data are binary `.Q00` files containing conductivity fluctuation
