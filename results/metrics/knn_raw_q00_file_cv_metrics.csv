@@ -1,0 +1,2 @@
+model,evaluation,cv_mean_accuracy,cv_std_accuracy,cv_fold_accuracies,n_splits,n_neighbors,sample_length,overlap_mode
+KNN — raw Q00 samples,file_level_group_kfold,0.0,0.0,0.000000; 0.000000; 0.000000,3,5,128,2

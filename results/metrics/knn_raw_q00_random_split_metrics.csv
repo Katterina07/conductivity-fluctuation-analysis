@@ -1,0 +1,2 @@
+model,evaluation,accuracy,balanced_accuracy,macro_f1,n_neighbors,sample_length,overlap_mode,test_size,random_state
+KNN — raw Q00 samples,random_sample_split,0.988690639005197,0.9886905302056004,0.9886786288270367,5,128,2,0.25,42
