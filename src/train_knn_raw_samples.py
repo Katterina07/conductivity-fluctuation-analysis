@@ -131,11 +131,8 @@ def extract_raw_samples(
         for sample in samples:
             sample = np.asarray(sample, dtype=float)
 
-            linear_coeffs = np.polyfit(time_index, sample, 1)
-            trend = np.polyval(linear_coeffs, time_index)
-
-            detrended_sample = (sample - trend) * scale
-            all_samples.append(detrended_sample)
+            scaled_sample = sample * scale
+            all_samples.append(scaled_sample)
 
     if not all_samples:
         return np.empty((0, sample_length), dtype=float)
@@ -208,7 +205,7 @@ def create_model():
     return make_pipeline(
         StandardScaler(),
         KNeighborsClassifier(
-            n_neighbors=5,
+            n_neighbors=2,
             weights="distance",
         ),
     )
@@ -245,7 +242,6 @@ def plot_confusion_matrix(
 
     plt.tight_layout()
     plt.savefig(path, dpi=300, bbox_inches="tight")
-    plt.show()
 
 
 def plot_class_distribution(y: np.ndarray, path: Path):
@@ -285,7 +281,6 @@ def plot_class_distribution(y: np.ndarray, path: Path):
 
     plt.tight_layout()
     plt.savefig(path, dpi=300, bbox_inches="tight")
-    plt.show()
 
 
 def evaluate_random_split(X: np.ndarray, y: np.ndarray):
