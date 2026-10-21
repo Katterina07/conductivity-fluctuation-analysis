@@ -29,13 +29,31 @@ time-domain samples.
 
 ## Figures
 
-### Class distribution
+### Feature distributions by file
 
-![Class distribution](results/figures/class_distribution.png)
+![Energy boxplots by file](results/figures/energy_boxplots_by_file.png)
 
-### KNN confusion matrix
+![Gamma boxplots by file](results/figures/gamma_boxplots_by_file.png)
 
-![KNN raw-sample random-split confusion matrix](results/figures/knn_raw_q00_random_split_confusion_matrix.png)
+### File-level comparison
+
+![File-level energy comparison](results/figures/file_level_energy_comparison.png)
+
+![File-level gamma comparison](results/figures/file_level_gamma_comparison.png)
+
+### Reference versus materials
+
+![Reference versus materials: energy](results/figures/reference_vs_materials_energy.png)
+
+![Reference versus materials: gamma](results/figures/reference_vs_materials_gamma.png)
+
+### Clustering
+
+![KMeans clusters](results/figures/kmeans_clusters.png)
+
+### Neural network classification
+
+![Neural network confusion matrix](results/figures/neural_network_confusion_matrix.png)
 
 ## Data and features
 
