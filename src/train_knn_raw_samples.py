@@ -126,8 +126,6 @@ def extract_raw_samples(
             overlap_mode=overlap_mode,
         )
 
-        time_index = np.arange(sample_length)
-
         for sample in samples:
             sample = np.asarray(sample, dtype=float)
 
