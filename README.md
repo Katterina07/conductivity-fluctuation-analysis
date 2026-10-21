@@ -24,8 +24,7 @@ conductivity fluctuation signals:
 | K-Nearest Neighbors | Accuracy | **86.10%** | 86% |
 | Fully connected neural network | Accuracy | **88.23%** | 89.41% |
 
-The KNN result closely reproduces the result reported in the thesis. The neural-network
-result differs by 1.18 percentage points, likely due to random weight initialization and software-version differences.
+The KNN result closely reproduces the result reported in the thesis. The difference from the thesis result is likely due to the different network configuration.
 
 In the thesis, 89.41% accuracy was obtained with the neural network on spectral features.
 
@@ -65,21 +64,24 @@ Reference measurements (`XXX`) were used to separate noise that is not related t
 the chemical composition of the film; they are compared with the material
 recordings in the "Reference versus materials" figures.
 
-For each 128-point sample, the pipeline computes:
-
-- mean fluctuation energy;
-- spectral shape exponent gamma.
+Both models use two features per 128-point window: `gamma` (spectral exponent) and
+`log_energy` (log10 of mean spectral energy), standardized with a scaler fitted on the training set.
 
 The spectral features are used for supervised material classification.
 
+## Irradiated films
+Irradiated films (210,137 windows per material) are not used for training. The trained network is applied to them;
+predictions are saved to `results/metrics/irradiated_film_predictions.csv`. These predictions are not ground truth.
+
 ## Machine-learning models
 
-- **K-Means clustering**: unsupervised analysis with `k = 4`. `k = 4` was chosen following the thesis.
+- **K-Means clustering**: unsupervised analysis with `k = 3`. Silhouette score is computed on the training set (285,160 windows)
 - **KNN**: supervised classification using spectral features.
 - **Fully connected neural network**: supervised classification using spectral features.
 
-The neural network uses four hidden layers with 128 neurons and was trained for
-100 epochs, following the methodology described in the thesis.
+The neural network is a scikit-learn `MLPClassifier` with hidden layers (64, 32),
+ReLU activation, Adam optimizer (`alpha=1e-4`), early stopping and `random_state=42`.
+The thesis describes a larger network (4 × 128, 100 epochs); this repository does not reproduce it exactly.
 
 ## Repository structure
 
