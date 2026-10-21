@@ -1,6 +1,6 @@
 # Conductivity Fluctuation Analysis
 
-This repository contains a reproducible Python pipeline for processing low-frequency
+This repository contains a Python pipeline for processing low-frequency
 conductivity fluctuation measurements of thin metallic films and evaluating
 machine-learning models for material recognition.
 
@@ -8,24 +8,26 @@ The workflow processes binary `.Q00` measurement files, extracts spectral featur
 and evaluates K-Means clustering, K-Nearest Neighbors (KNN), and a fully connected
 neural network.
 
+Note: the accuracies below use a random sample-level split, as in the thesis.
+For a stricter evaluation that keeps experimental series separate, see
+[thin-film-noise-analysis](https://github.com/Katterina07/thin-film-noise-analysis)
+(about 53% accuracy).
+
 ## Results
 
 The following results were obtained using spectral features computed from the
 conductivity fluctuation signals:
 
-| Model | Metric | Reproduced result | Result reported in the thesis |
+| Model | Metric | This repository | Result reported in the thesis |
 |---|---:|---:|---:|
 | K-Means | Silhouette score | 0.5098 | Qualitative cluster separation |
 | K-Nearest Neighbors | Accuracy | **86.10%** | 86% |
 | Fully connected neural network | Accuracy | **88.23%** | 89.41% |
 
 The KNN result closely reproduces the result reported in the thesis. The neural-network
-result differs by 1.18 percentage points, which is consistent with variation caused by
-random weight initialization, training order, and software-version differences.
+result differs by 1.18 percentage points, likely due to random weight initialization and software-version differences.
 
-The main result of the original thesis — **89.41% accuracy** — was obtained with a
-fully connected neural network using spectral features, rather than with KNN on raw
-time-domain samples.
+In the thesis, 89.41% accuracy was obtained with the neural network on spectral features.
 
 ## Figures
 
@@ -59,20 +61,20 @@ time-domain samples.
 
 The input data are binary `.Q00` files containing conductivity fluctuation
 measurements for bismuth (Bi), chromium (Cr), and iron (Fe) thin films.
-Reference measurements (`XXX`) are used to identify composition-independent
-contributions from the measurement system.
+Reference measurements (`XXX`) were used to separate noise that is not related to
+the chemical composition of the film; they are compared with the material
+recordings in the "Reference versus materials" figures.
 
 For each 128-point sample, the pipeline computes:
 
 - mean fluctuation energy;
-- spectral shape exponent gamma;
-- additional file-level spectral characteristics used in the analysis notebooks.
+- spectral shape exponent gamma.
 
 The spectral features are used for supervised material classification.
 
 ## Machine-learning models
 
-- **K-Means clustering**: unsupervised analysis with `k = 4`.
+- **K-Means clustering**: unsupervised analysis with `k = 4`. `k = 4` was chosen following the thesis.
 - **KNN**: supervised classification using spectral features.
 - **Fully connected neural network**: supervised classification using spectral features.
 
@@ -109,7 +111,7 @@ src/
 
 Install the dependencies:
 
-```bash
+```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
@@ -123,6 +125,8 @@ python -m pip install -r requirements.txt
 ```
 
 ## How to reproduce
+
+Requires the raw Q00 files (not included), placed in data/q00/.
 
 Run the signal-processing pipeline:
 
@@ -142,10 +146,10 @@ The notebooks generate figures, model metrics, and prediction outputs in the
 
 ## Data availability
 
-Raw `.Q00` measurement files are not distributed in this repository.
-
-Processed feature tables, model metrics, figures, and analysis notebooks are
-included to make the computational workflow and reported results reproducible.
+Raw .Q00 measurement files are not included because they are unpublished
+experimental results. Processed feature tables, model metrics, figures and
+notebooks are provided to document the computational workflow.
+The MIT license applies to the code only.
 
 ## Notes on evaluation
 
@@ -164,13 +168,12 @@ raw-sample classification is treated as an additional exploratory analysis.
 
 - The number of independent measurement files is limited: there are two files
   for each of the three studied materials.
-- Overlapping samples from the same `.Q00` file are statistically dependent.
-- A random sample-level train-test split may therefore overestimate performance
-  on completely unseen measurement files.
 - The reported neural-network result may vary between runs because of random
   weight initialization and training stochasticity.
 - Raw 128-point conductivity samples do not generalize well across measurement
   files; spectral features are more suitable for the material-classification task.
+
+Last full run: 10.2026.
 
 ## Citation
 
