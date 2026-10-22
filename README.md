@@ -44,7 +44,11 @@ In the thesis, 89.41% accuracy was obtained with the neural network on spectral 
 
 ### Reference versus materials
 
-![Reference versus materials: energy](results/figures/Distribution%20of%20log10%20spectral%20energy%20and%20exponent%20gamma.png)
+![Materials: energy and gamma](results/figures/Distribution%20of%20log10%20spectral%20energy%20and%20exponent%20gamma.png)
+
+![Reference versus materials: energy](results/figures/reference_vs_materials_energy.png)
+
+![Reference versus materials: gamma](results/figures/reference_vs_materials_gamma.png)
 
 ### Clustering
 
